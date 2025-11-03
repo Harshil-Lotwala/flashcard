@@ -266,6 +266,27 @@ const handleWebhook = async (req, res) => {
 
     // Handle the event
     switch (event.type) {
+        case 'checkout.session.completed':
+            const session = event.data.object;
+            console.log('Checkout session completed!', session.id);
+            
+            // Process credit purchase from checkout session (used for card and Apple Pay)
+            if (session.payment_status === 'paid' && session.metadata.type === 'credit_purchase') {
+                try {
+                    const user = await User.findById(session.metadata.userId);
+                    if (user) {
+                        const credits = parseInt(session.metadata.credits);
+                        await user.addCredits(credits);
+                        console.log(`Added ${credits} credits to user ${user._id} via checkout session`);
+                    } else {
+                        console.error(`User not found: ${session.metadata.userId}`);
+                    }
+                } catch (error) {
+                    console.error('Error processing webhook checkout session:', error);
+                }
+            }
+            break;
+
         case 'payment_intent.succeeded':
             const paymentIntent = event.data.object;
             console.log('PaymentIntent was successful!', paymentIntent.id);
