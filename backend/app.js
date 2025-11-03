@@ -30,6 +30,10 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// Stripe webhook route MUST come before express.json() to receive raw body
+const paymentsRouter = require('./routes/payments');
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), paymentsRouter);
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

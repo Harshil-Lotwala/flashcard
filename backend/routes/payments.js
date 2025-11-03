@@ -60,7 +60,7 @@ router.post('/confirm-payment', [
 // @route   POST /api/payments/webhook
 // @desc    Handle Stripe webhooks
 // @access  Public (secured with webhook signature)
-// Note: This route needs to be handled before express.json() middleware
-router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+// Note: This route is handled separately in app.js with raw body parser
+router.post('/webhook', handleWebhook);
 
 module.exports = router;
